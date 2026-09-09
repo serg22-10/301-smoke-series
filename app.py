@@ -1,45 +1,52 @@
 import streamlit as st
 
-st.set_page_config(
-    page_title="301 Smoke Series",
-    page_icon="🔥",
-    layout="wide"
-)
+st.set_page_config(page_title="301 Smoke Series", layout="wide")
 
-# ---------- ESTILO ----------
 st.markdown("""
 <style>
-.stApp{
-    background:#0B0B0B;
-}
-h1,h2,h3,p{
-    color:white;
-}
+.stApp {background:#0B0B0B;}
+h1,h2,h3,p {color:white;}
 .banner{
     background:#2B0000;
     border:1px solid #D61F1F;
-    border-radius:16px;
+    border-radius:14px;
     padding:16px;
-    margin-bottom:20px;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# ---------- HEADER ----------
-st.title("🔥 301 SMOKE SERIES")
-st.caption("Cartago · Costillas Ahumadas")
+# LOGO
+st.image("logo.png", width=280)
 
-cupos = 15
-
-st.markdown(f"""
+st.markdown("""
 <div class="banner">
-<h2 style="margin:0;">Quedan {cupos} espacios disponibles</h2>
-<p style="color:#FCA5A5;margin-top:8px;">
-Cierre de pedidos: miércoles · Entregas sábado y domingo
-</p>
+<h2>🔥 Quedan 15 espacios disponibles</h2>
+<p>Pedidos cierran los miércoles · Entrega sábado y domingo</p>
 </div>
 """, unsafe_allow_html=True)
 
-st.subheader("Bienvenido")
+st.markdown("## 🍖 Elegí tus combos")
 
-st.write("En el siguiente paso agregaremos los cuatro combos con tus imágenes.")
+c1, c2 = st.columns(2)
+
+with c1:
+    st.image("explorer.jpg", use_container_width=True)
+    st.write("### Explorer")
+    st.write("₡4.900")
+    st.number_input("Explorer", 0, 10, 0)
+
+    st.image("halfrack.jpg", use_container_width=True)
+    st.write("### ½ Rack BBQ")
+    st.write("₡12.900")
+    st.number_input("Half", 0, 10, 0)
+
+with c2:
+    st.image("pitmaster.jpg", use_container_width=True)
+    st.write("### Pitmaster")
+    st.write("₡6.900")
+    st.number_input("Pit", 0, 10, 0)
+
+    st.image("fullrack.jpg", use_container_width=True)
+    st.write("### Rack Entero")
+    st.write("₡23.900")
+    st.number_input("Full", 0, 10, 0)
