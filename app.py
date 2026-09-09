@@ -214,7 +214,7 @@ tarjeta(
 st.write("")
 
 tarjeta(
-    "Rack Entero",
+    "Full Rack",
     "12–14 ribs + 3 acompañamientos",
     23900,
     "assets/fullrack.jpg",
