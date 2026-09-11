@@ -1,17 +1,14 @@
 import streamlit as st
 
-# =====================================================
-# CONFIG
-# =====================================================
 st.set_page_config(
     page_title="301 Smoke Series",
     page_icon="🔥",
     layout="centered"
 )
 
-# =====================================================
-# ESTADO
-# =====================================================
+# =========================
+# DATOS
+# =========================
 PRECIOS = {
     "explorer": 4900,
     "pitmaster": 6900,
@@ -19,39 +16,81 @@ PRECIOS = {
     "full": 23900
 }
 
+LIMITES = {
+    "explorer": 1,
+    "pitmaster": 2,
+    "half": 3,
+    "full": 3
+}
+
+ACOMP = {
+    "Papas balín": "assets/papas_balin.png",
+    "Ensalada": "assets/ensalada.png",
+    "Elote": "assets/elote.png",
+    "Yuca": "assets/yuca.png",
+}
+
 for k in PRECIOS:
-    if k not in st.session_state:
-        st.session_state[k] = 0
+    st.session_state.setdefault(k, 0)
 
-if "horario" not in st.session_state:
-    st.session_state.horario = "Sábado 1"
+st.session_state.setdefault("horario", "Sábado 1")
 
-def mas(k):
-    st.session_state[k] += 1
+for combo in LIMITES:
+    for a in ACOMP:
+        st.session_state.setdefault(f"{combo}_{a}", 0)
 
-def menos(k):
-    if st.session_state[k] > 0:
-        st.session_state[k] -= 1
+# =========================
+# FUNCIONES
+# =========================
+def cupo(combo):
+    return LIMITES[combo] * st.session_state[combo]
 
-# =====================================================
-# CSS
-# =====================================================
+def total_acomp(combo):
+    return sum(st.session_state[f"{combo}_{a}"] for a in ACOMP)
+
+def menos(key):
+    st.session_state[key] = max(0, st.session_state[key] - 1)
+
+def mas(key):
+    st.session_state[key] += 1
+
+def menos_a(combo, acomp):
+    estado = f"{combo}_{acomp}"
+    st.session_state[estado] = max(0, st.session_state[estado] - 1)
+
+def mas_a(combo, acomp):
+    if total_acomp(combo) < cupo(combo):
+        st.session_state[f"{combo}_{acomp}"] += 1
+
+# =========================
+# ESTILO
+# =========================
 st.markdown("""
 <style>
-.stApp{
-    background:#090909;
-    overflow-x:hidden;
+
+/* ===== APP ===== */
+
+.stApp,
+[data-testid="stAppViewContainer"]{
+    background:#090909 !important;
 }
-header{visibility:hidden;}
+
+header{
+    visibility:hidden;
+}
 
 .block-container{
     max-width:430px;
-    padding:1rem 12px 2rem;
+    padding:1rem 10px 2rem;
 }
 
-h1,h2,h3,h4,h5,h6,p{
+/* ===== TEXTO ===== */
+
+h1,h2,h3,h4,h5,h6,p,span,label{
     color:white !important;
 }
+
+/* ===== BANNER ===== */
 
 .banner{
     background:#250000;
@@ -59,48 +98,99 @@ h1,h2,h3,h4,h5,h6,p{
     border-radius:14px;
     padding:14px;
     text-align:center;
-    margin-bottom:18px;
     color:white;
+    margin-bottom:18px;
 }
+
+/* ===== IMÁGENES ===== */
+
+.stImage img{
+    border-radius:14px;
+}
+
+/* ===== PRECIO ===== */
 
 .precio{
-    color:#B1121B;
+    color:#C1121F;
     text-align:center;
-    font-size:34px;
+    font-size:32px;
     font-weight:800;
-    margin:8px 0 14px;
+    margin:8px 0;
 }
 
+/* ===== CONTADOR COMBOS ===== */
+
 .qty{
-    height:56px;
-    width:100%;
+    height:30px;
     background:#111;
     border:1px solid #333;
-    border-radius:12px;
+    border-radius:15px;
     display:flex;
-    justify-content:center;
     align-items:center;
+    justify-content:center;
     color:white;
-    font-size:26px;
+    font-size:15px;
     font-weight:700;
 }
+
+/* ===== BOTONES ===== */
 
 .stButton > button{
     width:100%;
-    height:56px;
+    height:30px;
     border:none;
-    border-radius:12px;
+    border-radius:15px;
     background:#C1121F;
     color:white;
-    font-size:22px;
+    font-size:15px;
     font-weight:700;
     padding:0;
-    line-height:1;
 }
 
-.stButton > button:hover{
-    background:#981018;
+/* ===== ACOMPAÑAMIENTOS ===== */
+
+.acomp-card{
+    border:1px solid #2C2C2C;
+    border-radius:14px;
+    padding:8px;
+    margin-bottom:10px;
 }
+
+.acomp-card [data-testid="column"]:last-child{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+}
+
+.acomp-card div[data-testid="stButton"] > button{
+    width:38px !important;
+    min-width:38px !important;
+    max-width:38px !important;
+    height:38px !important;
+    min-height:38px !important;
+    border-radius:50% !important;
+    padding:0 !important;
+    font-size:20px !important;
+    font-weight:700 !important;
+    margin:0 auto !important;
+}
+
+.qty-mini{
+    height:34px;
+    background:#111;
+    border:1px solid #444;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:18px;
+    font-weight:800;
+    margin:8px 0;
+}
+
+/* ===== TOTAL ===== */
 
 .total{
     background:#111;
@@ -109,15 +199,48 @@ h1,h2,h3,h4,h5,h6,p{
     padding:18px;
     text-align:center;
 }
+
+@media (max-width:430px){
+
+    .block-container{
+        padding-left:8px;
+        padding-right:8px;
+    }
+
+    .qty{
+        height:28px;
+        font-size:14px;
+    }
+
+    .stButton > button{
+        height:28px;
+        font-size:13px;
+    }
+
+    .acomp-card div[data-testid="stButton"] > button{
+        width:36px !important;
+        height:36px !important;
+        min-width:36px !important;
+        min-height:36px !important;
+        font-size:18px !important;
+    }
+
+    .qty-mini{
+        width:40px;
+        height:32px;
+        font-size:16px;
+    }
+}
+
 </style>
 """, unsafe_allow_html=True)
 
-# =====================================================
+# =========================
 # HEADER
-# =====================================================
-_, logo, _ = st.columns([1,2,1])
+# =========================
+left, center, right = st.columns([1,2,1])
 
-with logo:
+with center:
     st.image("assets/logo.png", use_container_width=True)
 
 st.markdown("""
@@ -129,60 +252,113 @@ Entregas sábado y domingo
 
 st.markdown("## 🍖 Costillas Ahumadas")
 
-# =====================================================
-# TARJETA
-# =====================================================
+# =========================
+# CONTADOR
+# =========================
+def contador(key, menos_fn, mas_fn, args):
+
+    with st.container(horizontal=True):
+
+        if st.button("➖", key=f"m_{key}", use_container_width=True):
+            menos_fn(*args)
+            st.rerun()
+
+        st.markdown(
+            f"""
+            <div style="
+                min-width:64px;
+                height:32px;
+                border-radius:16px;
+                background:#111;
+                border:1px solid #333;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                color:white;
+                font-size:16px;
+                font-weight:700;">
+                {st.session_state[key]}
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        if st.button("➕", key=f"p_{key}", use_container_width=True):
+            mas_fn(*args)
+            st.rerun()
+
+# =========================
+# ACOMPAÑAMIENTOS
+# =========================
+def selector(combo):
+
+    if st.session_state[combo] == 0:
+        return
+
+    st.markdown(
+        f"### 🥗 Acompañamientos ({total_acomp(combo)}/{cupo(combo)})"
+    )
+
+    for nombre, imagen in ACOMP.items():
+
+        estado = f"{combo}_{nombre}"
+
+        with st.container(border=True):
+
+            # Nombre
+            st.markdown(f"**{nombre}**")
+
+            # Imagen + selector en una sola fila
+            img, ctrl = st.columns([1.2, 0.8], gap="medium")
+
+            with img:
+                st.image(imagen, width=110)
+
+            with ctrl:
+
+                st.button(
+                    "➕",
+                    key=f"ap_{estado}",
+                    on_click=mas_a,
+                    args=(combo, nombre),
+                    use_container_width=True
+                )
+
+                st.markdown(
+                    f"<div class='qty-mini'>{st.session_state[estado]}</div>",
+                    unsafe_allow_html=True
+                )
+
+                st.button(
+                    "➖",
+                    key=f"am_{estado}",
+                    on_click=menos_a,
+                    args=(combo, nombre),
+                    use_container_width=True
+                )
+# =========================
+# TARJETAS
+# =========================
 def tarjeta(nombre, desc, precio, imagen, key):
 
     with st.container(border=True):
 
         st.image(imagen, use_container_width=True)
 
-        st.markdown(
-            f"<h3 style='text-align:center'>{nombre}</h3>",
-            unsafe_allow_html=True
-        )
-
-        st.markdown(
-            f"<p style='text-align:center'>{desc}</p>",
-            unsafe_allow_html=True
-        )
+        st.markdown(f"### {nombre}")
+        st.caption(desc)
 
         st.markdown(
             f"<div class='precio'>₡ {precio:,}</div>",
             unsafe_allow_html=True
         )
 
-        # UNA SOLA FILA
-        c1, c2, c3 = st.columns([1,1.4,1], gap="small")
+        contador(key, menos, mas, (key,))
 
-        with c1:
-            st.button(
-                "➖",
-                key=f"menos_{key}",
-                on_click=menos,
-                args=(key,),
-                use_container_width=True
-            )
+        if st.session_state[key] > 0:
+            st.divider()
+            selector(key)
 
-        with c2:
-            st.markdown(
-                f"<div class='qty'>{st.session_state[key]}</div>",
-                unsafe_allow_html=True
-            )
-
-        with c3:
-            st.button(
-                "➕",
-                key=f"mas_{key}",
-                on_click=mas,
-                args=(key,),
-                use_container_width=True
-            )
-
-# =====================================================
-# COMBOS
-# =====================================================
 tarjeta(
     "Explorer",
     "2 ribs + 1 acompañamiento",
@@ -221,51 +397,57 @@ tarjeta(
     "full"
 )
 
-# =====================================================
+# =========================
 # HORARIOS
-# =====================================================
-st.markdown("---")
+# =========================
+st.divider()
 st.markdown("## 📅 Horario de entrega")
 
-if st.button("🌞 SÁBADO 1 · 12:00–2:00 pm", use_container_width=True):
-    st.session_state.horario = "Sábado 1"
+horarios = [
+    ("🌞 SÁBADO 1 · 12:00–2:00 pm","Sábado 1"),
+    ("🌙 SÁBADO 2 · 6:00–8:00 pm","Sábado 2"),
+    ("☀️ DOMINGO 1 · 12:00–2:00 pm","Domingo 1")
+]
 
-if st.button("🌙 SÁBADO 2 · 6:00–8:00 pm", use_container_width=True):
-    st.session_state.horario = "Sábado 2"
-
-if st.button("☀️ DOMINGO 1 · 12:00–2:00 pm", use_container_width=True):
-    st.session_state.horario = "Domingo 1"
+for texto, valor in horarios:
+    if st.button(texto, use_container_width=True):
+        st.session_state["horario"] = valor
 
 st.markdown(
-    f"<p style='text-align:center;color:#B1121B;font-weight:bold;font-size:18px'>Horario: {st.session_state.horario}</p>",
+    f"<p style='text-align:center;color:#B1121B;font-weight:bold'>Horario: {st.session_state['horario']}</p>",
     unsafe_allow_html=True
 )
 
-# =====================================================
+# =========================
 # TOTAL
-# =====================================================
-total = (
-    st.session_state.explorer * 4900 +
-    st.session_state.pitmaster * 6900 +
-    st.session_state.half * 12900 +
-    st.session_state.full * 23900
+# =========================
+total = sum(
+    st.session_state[k] * v
+    for k, v in PRECIOS.items()
 )
 
-st.markdown("---")
+st.divider()
 
 st.markdown(f"""
-<div class='total'>
-    <h3 style='color:white;margin:0'>TOTAL</h3>
-    <h1 style='color:#B1121B;font-size:48px;margin-top:8px'>
+<div class="total">
+    <h3 style="color:white;margin:0;">TOTAL</h3>
+    <h1 style="color:#B1121B;margin-top:8px;">
         ₡ {total:,}
     </h1>
 </div>
 """, unsafe_allow_html=True)
 
-st.write("")
+faltan = any(
+    st.session_state[c] > 0 and total_acomp(c) != cupo(c)
+    for c in LIMITES
+)
+
+if faltan:
+    st.warning("⚠️ Completá los acompañamientos")
 
 st.button(
     "🔥 CONTINUAR PEDIDO",
+    type="primary",
     use_container_width=True,
-    type="primary"
+    disabled=(total == 0 or faltan)
 )
