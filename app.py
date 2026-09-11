@@ -149,17 +149,36 @@ h1,h2,h3,h4,h5,h6,p,span,label{
 
 /* ===== ACOMPAÑAMIENTOS ===== */
 
-.acomp-card{
-    border:1px solid #2C2C2C;
-    border-radius:14px;
-    padding:8px;
-    margin-bottom:10px;
+.qty-mini{
+    width:38px;
+    height:38px;
+    background:#111;
+    border:1px solid #444;
+    border-radius:50%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    color:#FFF;
+    font-size:18px;
+    font-weight:800;
+
+    margin:6px auto;
 }
 
+/* Centra la columna del selector */
 .acomp-card [data-testid="column"]:last-child{
     display:flex;
     flex-direction:column;
     align-items:center;
+    justify-content:center;
+    gap:6px;
+}
+
+/* Botones del mismo tamaño que el contador */
+.acomp-card div[data-testid="stButton"]{
+    display:flex;
     justify-content:center;
 }
 
@@ -167,27 +186,22 @@ h1,h2,h3,h4,h5,h6,p,span,label{
     width:38px !important;
     min-width:38px !important;
     max-width:38px !important;
+
     height:38px !important;
     min-height:38px !important;
+    max-height:38px !important;
+
     border-radius:50% !important;
     padding:0 !important;
-    font-size:20px !important;
-    font-weight:700 !important;
-    margin:0 auto !important;
-}
 
-.qty-mini{
-    height:34px;
-    background:#111;
-    border:1px solid #444;
-    border-radius:10px;
-    display:flex;
+    display:flex !important;
     align-items:center;
     justify-content:center;
-    color:white;
-    font-size:18px;
-    font-weight:800;
-    margin:8px 0;
+
+    font-size:20px !important;
+    font-weight:700 !important;
+
+    margin:0 auto !important;
 }
 
 /* ===== TOTAL ===== */
