@@ -5,7 +5,107 @@ st.set_page_config(
     page_icon="🔥",
     layout="centered"
 )
+# ======================================================
+# POPUP · FINALIZAR PEDIDO
+# ======================================================
 
+@st.dialog("🔥 Finalizar pedido")
+def finalizar_pedido(total):
+
+    st.markdown("""
+    <style>
+    div[role="dialog"]{
+        background:#090909 !important;
+    }
+
+    div[role="dialog"] h1,
+    div[role="dialog"] h2,
+    div[role="dialog"] h3,
+    div[role="dialog"] p,
+    div[role="dialog"] label{
+        color:white !important;
+    }
+
+    div[role="dialog"] input,
+    div[role="dialog"] textarea{
+        background:#2A2A2A !important;
+        color:white !important;
+        border:1px solid #444 !important;
+        border-radius:10px !important;
+    }
+
+    div[role="dialog"] input::placeholder,
+    div[role="dialog"] textarea::placeholder{
+        color:#BDBDBD !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # ---------- LOGO ----------
+    c1, c2, c3 = st.columns([1,2,1])
+    with c2:
+        st.image("assets/logo.png", use_container_width=True)
+
+
+    # ---------- CLIENTE ----------
+    st.subheader("👤 Datos del cliente")
+
+    nombre = st.text_input(
+        "Nombre completo",
+        placeholder="Ej. Sergio Gómez"
+    )
+
+    telefono = st.text_input(
+        "WhatsApp",
+        placeholder="8888-8888"
+    )
+
+    observaciones = st.text_area(
+        "Observaciones (opcional)",
+        placeholder="Ej. Sin salsa, retirar por otra persona…",
+        height=80
+    )
+
+
+    # ---------- RESUMEN ----------
+    st.subheader("🧾 Tu pedido")
+
+    def mostrar(combo, titulo):
+        if st.session_state[combo] > 0:
+
+            st.markdown(
+                f"**{titulo} × {st.session_state[combo]}**"
+            )
+
+            for a in ACOMP:
+                q = st.session_state[f"{combo}_{a}"]
+                if q > 0:
+                    st.write(f"• {a} × {q}")
+
+            st.write("")
+
+    mostrar("explorer", "Explorer")
+    mostrar("pitmaster", "Pitmaster")
+    mostrar("half", "½ Rack BBQ")
+    mostrar("full", "Full Rack BBQ")
+
+    st.subheader("🕒 Retiro")
+    st.success(f"Horario: {st.session_state.horario}")
+
+    st.markdown(f"## 💰 TOTAL: ₡ {total:,}")
+
+    listo = (
+        nombre.strip() != "" and
+        telefono.strip() != "" and
+        st.session_state.horario != ""
+    )
+
+    st.button(
+        "📲 Enviar por WhatsApp",
+        type="primary",
+        use_container_width=True,
+        disabled=not listo
+    )
 # =========================
 # DATOS
 # =========================
@@ -33,7 +133,7 @@ ACOMP = {
 for k in PRECIOS:
     st.session_state.setdefault(k, 0)
 
-st.session_state.setdefault("horario", "Sábado 1")
+st.session_state.setdefault("horario","")
 
 for combo in LIMITES:
     for a in ACOMP:
@@ -415,22 +515,22 @@ tarjeta(
 # HORARIOS
 # =========================
 st.divider()
-st.markdown("## 📅 Horario de entrega")
+st.markdown("## 🕒 Horario de retiro")
 
-horarios = [
-    ("🌞 SÁBADO 1 · 12:00–2:00 pm","Sábado 1"),
-    ("🌙 SÁBADO 2 · 6:00–8:00 pm","Sábado 2"),
-    ("☀️ DOMINGO 1 · 12:00–2:00 pm","Domingo 1")
+opciones = [
+    ("🌞 SÁBADO 1 · 12:00–2:00 pm", "Sábado 1"),
+    ("🌙 SÁBADO 2 · 6:00–8:00 pm", "Sábado 2"),
+    ("☀️ DOMINGO 1 · 12:00–2:00 pm", "Domingo 1"),
 ]
 
-for texto, valor in horarios:
+for texto, valor in opciones:
     if st.button(texto, use_container_width=True):
-        st.session_state["horario"] = valor
+        st.session_state.horario = valor
 
-st.markdown(
-    f"<p style='text-align:center;color:#B1121B;font-weight:bold'>Horario: {st.session_state['horario']}</p>",
-    unsafe_allow_html=True
-)
+if st.session_state.horario == "":
+    st.warning("⚠️ Seleccioná un horario para continuar.")
+else:
+    st.success(f"Horario de retiro: {st.session_state.horario}")
 
 # =========================
 # TOTAL
@@ -459,9 +559,10 @@ faltan = any(
 if faltan:
     st.warning("⚠️ Completá los acompañamientos")
 
-st.button(
+if st.button(
     "🔥 CONTINUAR PEDIDO",
     type="primary",
     use_container_width=True,
-    disabled=(total == 0 or faltan)
-)
+    disabled=(total == 0 or faltan or st.session_state.horario == "")
+):
+    finalizar_pedido(total)
